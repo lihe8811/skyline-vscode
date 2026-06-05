@@ -5,6 +5,8 @@ import * as _ from "lodash";
 import * as path from "path";
 import * as unescapeJS from "unescape-js";
 import * as vscode from "vscode";
+import { createConfiguredOjApiClient, isOjBackendEnabled } from "../api/ojApiConfig";
+import { IOjProblem } from "../api/ojApiClient";
 import { explorerNodeManager } from "../explorer/explorerNodeManager";
 import { LeetCodeNode } from "../explorer/LeetCodeNode";
 import { leetCodeChannel } from "../leetCodeChannel";
@@ -59,8 +61,14 @@ export async function previewProblem(input: IProblem | vscode.Uri, isSideMode: b
         }
     }
 
-    const needTranslation: boolean = settingUtils.shouldUseEndpointTranslation();
-    const descString: string = await leetCodeExecutor.getDescription(node.id, needTranslation);
+    let descString: string;
+    if (isOjBackendEnabled()) {
+        const problem: IOjProblem = await createConfiguredOjApiClient().getProblem(node.id);
+        descString = problem.statement || "";
+    } else {
+        const needTranslation: boolean = settingUtils.shouldUseEndpointTranslation();
+        descString = await leetCodeExecutor.getDescription(node.id, needTranslation);
+    }
     leetCodePreviewProvider.show(descString, node, isSideMode);
 }
 
