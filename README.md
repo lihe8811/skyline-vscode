@@ -1,9 +1,9 @@
-# LeetCode
+# SkylineAI OJ
 
-> Solve LeetCode problems in VS Code
+> Solve SkylineAI Python homework problems in VS Code
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/LeetCode-OpenSource/vscode-leetcode/master/resources/LeetCode.png" alt="">
+  <img src="resources/SkylineAI.png" alt="SkylineAI" width="168">
 </p>
 <p align="center">
   <a href="https://github.com/LeetCode-OpenSource/vscode-leetcode/actions?query=workflow%3ACI+branch%3Amaster">
