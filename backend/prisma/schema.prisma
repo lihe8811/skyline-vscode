@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int     @id @default(autoincrement())
+  username  String  @unique
+  password  String
+  role      String
+}
+
+model Group {
+  id        Int           @id @default(autoincrement())
+  name      String
+  members   GroupMember[]
+}
+
+model GroupMember {
+  id       Int   @id @default(autoincrement())
+  groupId  Int
+  userId   Int
+}
+
+model Problem {
+  id          Int               @id @default(autoincrement())
+  title       String
+  difficulty  Int
+  description String
+  testcases   ProblemTestcase[]
+}
+
+model ProblemTestcase {
+  id         Int    @id @default(autoincrement())
+  problemId  Int
+  input      String
+  output     String
+  isHidden   Boolean @default(true)
+}
+
+model Homework {
+  id          Int                  @id @default(autoincrement())
+  title       String
+  description String
+}
+
+model HomeworkAssignment {
+  id         Int    @id @default(autoincrement())
+  homeworkId Int
+  userId     Int?
+  groupId    Int?
+}
+
+model Submission {
+  id          Int    @id @default(autoincrement())
+  token       String @unique
+  userId      Int
+  problemId   Int
+  homeworkId  Int?
+  status      String
+  score       Int    @default(0)
+  timeMs      Int    @default(0)
+  memoryKb    Int    @default(0)
+}
+
+model HomeworkScore {
+  id          Int  @id @default(autoincrement())
+  homeworkId  Int
+  userId      Int
+  totalScore  Int  @default(0)
+  totalTimeMs Int  @default(0)
+}
+
+model HomeworkProblemScore {
+  id          Int  @id @default(autoincrement())
+  homeworkId  Int
+  userId      Int
+  problemId   Int
+  score       Int  @default(0)
+  timeMs      Int  @default(0)
+}
