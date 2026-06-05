@@ -4,11 +4,28 @@
 import { leetCodeExecutor } from "../leetCodeExecutor";
 import { leetCodeManager } from "../leetCodeManager";
 import { IProblem, ProblemState, UserStatus } from "../shared";
+import { createConfiguredOjApiClient, isOjBackendEnabled } from "../api/ojApiConfig";
+import { IOjProblem } from "../api/ojApiClient";
 import * as settingUtils from "../utils/settingUtils";
 import { DialogType, promptForOpenOutputChannel } from "../utils/uiUtils";
 
 export async function listProblems(): Promise<IProblem[]> {
     try {
+        if (isOjBackendEnabled()) {
+            const problems: IOjProblem[] = await createConfiguredOjApiClient().listProblems();
+            return problems.map((problem: IOjProblem) => ({
+                id: String(problem.problemId),
+                isFavorite: false,
+                locked: false,
+                state: ProblemState.Unknown,
+                name: problem.title,
+                difficulty: String(problem.difficulty),
+                passRate: "N/A",
+                companies: [],
+                tags: problem.tags || [],
+            }));
+        }
+
         if (leetCodeManager.getStatus() === UserStatus.SignedOut) {
             return [];
         }
