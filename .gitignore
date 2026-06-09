@@ -64,3 +64,9 @@ out
 
 # Mac
 .DS_Store
+
+# Local git worktrees
+.worktrees/
+
+# Local OJ database exports can contain student and authentication data
+backup/
