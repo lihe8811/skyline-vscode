@@ -14,12 +14,20 @@ import { getLeetCodeEndpoint } from "./commands/plugin";
 import { globalState } from "./globalState";
 import { queryUserData } from "./request/query-user-data";
 import { parseQuery } from "./utils/toolUtils";
+import { OjSession } from "./auth/ojSession";
+import {
+    createAnonymousOjApiClient,
+    createConfiguredOjApiClient,
+    isOjBackendEnabled,
+    setOjSessionToken,
+} from "./api/ojApiConfig";
 
 class LeetCodeManager extends EventEmitter {
     private currentUser: string | undefined;
     private userStatus: UserStatus;
     private readonly successRegex: RegExp = /(?:.*)Successfully .*login as (.*)/i;
     private readonly failRegex: RegExp = /.*\[ERROR\].*/i;
+    private ojSession: OjSession | undefined;
 
     constructor() {
         super();
@@ -28,7 +36,16 @@ class LeetCodeManager extends EventEmitter {
         this.handleUriSignIn = this.handleUriSignIn.bind(this);
     }
 
+    public initialize(context: vscode.ExtensionContext): void {
+        this.ojSession = new OjSession(context.secrets);
+    }
+
     public async getLoginStatus(): Promise<void> {
+        if (isOjBackendEnabled()) {
+            await this.getOjLoginStatus();
+            return;
+        }
+
         try {
             const result: string = await leetCodeExecutor.getUserInfo();
             this.currentUser = this.tryParseUserName(result);
@@ -37,6 +54,30 @@ class LeetCodeManager extends EventEmitter {
             this.currentUser = undefined;
             this.userStatus = UserStatus.SignedOut;
             globalState.removeAll();
+        } finally {
+            this.emit("statusChanged");
+        }
+    }
+
+    private async getOjLoginStatus(): Promise<void> {
+        if (!this.ojSession) {
+            throw new Error("SkylineAI session is not initialized.");
+        }
+
+        try {
+            await this.ojSession.restore();
+            setOjSessionToken(this.ojSession.getToken());
+            if (!this.ojSession.getToken()) {
+                throw new Error("No stored SkylineAI access token.");
+            }
+            const profile = await createConfiguredOjApiClient().getCurrentUser();
+            this.currentUser = profile.user.displayName || profile.user.username;
+            this.userStatus = UserStatus.SignedIn;
+        } catch (_) {
+            await this.ojSession.clear();
+            setOjSessionToken(undefined);
+            this.currentUser = undefined;
+            this.userStatus = UserStatus.SignedOut;
         } finally {
             this.emit("statusChanged");
         }
@@ -87,6 +128,11 @@ class LeetCodeManager extends EventEmitter {
     }
 
     public async signIn(): Promise<void> {
+        if (isOjBackendEnabled()) {
+            await this.signInToOj();
+            return;
+        }
+
         const picks: Array<IQuickItemEx<string>> = []
         picks.push(
             {
@@ -122,7 +168,62 @@ class LeetCodeManager extends EventEmitter {
         }
     }
 
+    private async signInToOj(): Promise<void> {
+        if (!this.ojSession) {
+            throw new Error("SkylineAI session is not initialized.");
+        }
+
+        const username: string | undefined = await vscode.window.showInputBox({
+            prompt: "Enter your SkylineAI username",
+            ignoreFocusOut: true,
+            validateInput: (value: string): string | undefined => value.trim() ? undefined : "Username must not be empty",
+        });
+        if (!username) {
+            return;
+        }
+
+        const password: string | undefined = await vscode.window.showInputBox({
+            prompt: "Enter your SkylineAI password",
+            password: true,
+            ignoreFocusOut: true,
+            validateInput: (value: string): string | undefined => value ? undefined : "Password must not be empty",
+        });
+        if (!password) {
+            return;
+        }
+
+        try {
+            await vscode.window.withProgress(
+                { location: vscode.ProgressLocation.Notification, title: "Signing in to SkylineAI..." },
+                async () => {
+                    const login = await createAnonymousOjApiClient().login({ username: username.trim(), password });
+                    await this.ojSession!.save(login);
+                    setOjSessionToken(login.accessToken);
+                    this.currentUser = login.user.displayName || login.user.username;
+                    this.userStatus = UserStatus.SignedIn;
+                    this.emit("statusChanged");
+                },
+            );
+            vscode.window.showInformationMessage(`Signed in as ${this.currentUser}.`);
+        } catch (error) {
+            leetCodeChannel.appendLine(error.toString());
+            vscode.window.showErrorMessage("SkylineAI sign-in failed. Check your username, password, and backend URL.");
+        }
+    }
+
     public async signOut(): Promise<void> {
+        if (isOjBackendEnabled()) {
+            if (this.ojSession) {
+                await this.ojSession.clear();
+            }
+            setOjSessionToken(undefined);
+            this.currentUser = undefined;
+            this.userStatus = UserStatus.SignedOut;
+            this.emit("statusChanged");
+            vscode.window.showInformationMessage("Successfully signed out.");
+            return;
+        }
+
         try {
             await leetCodeExecutor.signOut();
             vscode.window.showInformationMessage("Successfully signed out.");

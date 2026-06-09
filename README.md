@@ -25,13 +25,14 @@ Implemented in this branch:
 - Migration scripts for Hydro/MongoDB backup data under `scripts/migration/`.
 - Application collection design and migration validation checks.
 - Backend scaffold under `backend/` with route registration, auth/RBAC helpers, read-model services, submission orchestration, and judge worker modules.
+- Database-backed username/password authentication with scrypt password hashes and signed access tokens.
 - Python judge runner scaffold with result mapping for accepted, wrong answer, runtime error, time limit, and memory limit states.
 - VS Code extension API client and command integration that use SkylineAI OJ when `skylineOj.backendUrl` is configured.
 - Cutover and rollback runbooks under `docs/migration/`.
 
 Not complete yet:
 
-- Production authentication. Auth0 is planned, but current backend auth is scaffolding.
+- Auth0 integration, token refresh, and centralized session revocation. The current implementation uses local database accounts and one-hour signed access tokens.
 - Production-grade sandbox hardening and deployment packaging for the Python judge worker.
 - Full extension renaming from legacy LeetCode package metadata and command IDs.
 - Teacher/admin UI workflows for managing classes and homework.
@@ -54,14 +55,32 @@ Add these settings to VS Code `settings.json` when testing the SkylineAI backend
 
 ```json
 {
-  "skylineOj.backendUrl": "http://localhost:3000",
-  "skylineOj.token": "dev-token"
+  "skylineOj.backendUrl": "http://localhost:3000"
 }
 ```
 
-`skylineOj.backendUrl` enables the custom OJ API integration. If it is missing, the extension falls back to the legacy LeetCode flow.
+`skylineOj.backendUrl` selects the SkylineAI backend. The default local development value is `http://127.0.0.1:3000`.
 
-`skylineOj.token` is sent as the API bearer token when configured. This is a temporary development path until Auth0 integration is added.
+Use the sign-in button in the SkylineAI Explorer to enter a username and password. The extension sends them to `POST /v1/auth/login` and stores only the returned access token and user profile in VS Code SecretStorage.
+
+Initialize a migrated user's password before login:
+
+```bash
+cd backend
+MONGO_URI='mongodb://localhost:27017' \
+USER_PASSWORD='temporary-password' \
+npm run set-password -- student1
+```
+
+Run the database-backed authentication server:
+
+```bash
+cd backend
+MONGO_URI='mongodb://localhost:27017' \
+MONGO_DB='oj_app' \
+AUTH_TOKEN_SECRET='replace-with-a-long-random-secret' \
+npm start
+```
 
 ## REST API Scope
 

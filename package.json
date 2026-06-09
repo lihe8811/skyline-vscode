@@ -169,7 +169,7 @@
                 },
                 {
                     "command": "leetcode.signin",
-                    "when": "view == leetCodeExplorer",
+                    "when": "view == leetCodeExplorer && skylineOj.signedIn != true",
                     "group": "navigation@1"
                 },
                 {
@@ -184,7 +184,7 @@
                 },
                 {
                     "command": "leetcode.signout",
-                    "when": "view == leetCodeExplorer",
+                    "when": "view == leetCodeExplorer && skylineOj.signedIn == true",
                     "group": "overflow@1"
                 },
                 {
@@ -293,6 +293,12 @@
             {
                 "title": "Skyline AI",
                 "properties": {
+                    "skylineOj.backendUrl": {
+                        "type": "string",
+                        "default": "http://127.0.0.1:3000",
+                        "scope": "application",
+                        "description": "Base URL of the SkylineAI OJ backend."
+                    },
                     "leetcode.hideSolved": {
                         "type": "boolean",
                         "default": false,

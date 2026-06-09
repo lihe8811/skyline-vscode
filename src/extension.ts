@@ -26,20 +26,23 @@ import { leetCodeSubmissionProvider } from "./webview/leetCodeSubmissionProvider
 import { markdownEngine } from "./webview/markdownEngine";
 import TrackData from "./utils/trackingUtils";
 import { globalState } from "./globalState";
+import { isOjBackendEnabled } from "./api/ojApiConfig";
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
     try {
-        if (!(await leetCodeExecutor.meetRequirements(context))) {
+        if (!isOjBackendEnabled() && !(await leetCodeExecutor.meetRequirements(context))) {
             throw new Error("The environment doesn't meet requirements.");
         }
 
         leetCodeManager.on("statusChanged", () => {
             leetCodeStatusBarController.updateStatusBar(leetCodeManager.getStatus(), leetCodeManager.getUser());
+            vscode.commands.executeCommand("setContext", "skylineOj.signedIn", !!leetCodeManager.getUser());
             leetCodeTreeDataProvider.refresh();
         });
 
         leetCodeTreeDataProvider.initialize(context);
         globalState.initialize(context);
+        leetCodeManager.initialize(context);
 
         context.subscriptions.push(
             leetCodeStatusBarController,
@@ -100,9 +103,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             vscode.commands.registerCommand("leetcode.problems.sort", () => plugin.switchSortingStrategy())
         );
 
-        await leetCodeExecutor.switchEndpoint(plugin.getLeetCodeEndpoint());
+        if (!isOjBackendEnabled()) {
+            await leetCodeExecutor.switchEndpoint(plugin.getLeetCodeEndpoint());
+        }
         await leetCodeManager.getLoginStatus();
-        vscode.window.registerUriHandler({ handleUri: leetCodeManager.handleUriSignIn });
+        if (!isOjBackendEnabled()) {
+            vscode.window.registerUriHandler({ handleUri: leetCodeManager.handleUriSignIn });
+        }
     } catch (error) {
         leetCodeChannel.appendLine(error.toString());
         promptForOpenOutputChannel("Extension initialization failed. Please open output channel for details.", DialogType.error);

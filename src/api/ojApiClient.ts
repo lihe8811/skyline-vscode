@@ -1,3 +1,7 @@
+import * as http from "http";
+import * as https from "https";
+import { URL } from "url";
+
 export interface IOjApiClientOptions {
     baseUrl: string;
     token?: string;
@@ -24,6 +28,27 @@ export interface IOjSubmission {
     score?: number;
 }
 
+export interface IOjUser {
+    userId: number;
+    username: string;
+    displayName: string;
+    role: string;
+}
+
+export interface IOjLoginRequest {
+    username: string;
+    password: string;
+}
+
+export interface IOjLoginResponse {
+    accessToken: string;
+    user: IOjUser;
+}
+
+export interface IOjProfileResponse {
+    user: IOjUser;
+}
+
 interface IRequestOptions {
     method?: string;
     headers?: { [key: string]: string };
@@ -43,11 +68,34 @@ function trimTrailingSlash(value: string): string {
 }
 
 function defaultRequester(url: string, init: IRequestOptions): Promise<IResponseLike> {
-    const fetchFn: any = (globalThis as any).fetch;
-    if (!fetchFn) {
-        return Promise.reject(new Error("Global fetch is not available in this extension host."));
-    }
-    return fetchFn(url, init);
+    return new Promise<IResponseLike>((resolve: (response: IResponseLike) => void, reject: (error: Error) => void) => {
+        const target: URL = new URL(url);
+        const transport: typeof http | typeof https = target.protocol === "https:" ? https : http;
+        const request: http.ClientRequest = transport.request(
+            target,
+            {
+                method: init.method || "GET",
+                headers: init.headers,
+            },
+            (response: http.IncomingMessage) => {
+                const chunks: Buffer[] = [];
+                response.on("data", (chunk: Buffer) => chunks.push(Buffer.from(chunk)));
+                response.on("end", () => {
+                    const payload: string = Buffer.concat(chunks).toString("utf8");
+                    resolve({
+                        ok: !!response.statusCode && response.statusCode >= 200 && response.statusCode < 300,
+                        status: response.statusCode || 0,
+                        json: async (): Promise<any> => payload ? JSON.parse(payload) : {},
+                    });
+                });
+            },
+        );
+        request.on("error", reject);
+        if (init.body) {
+            request.write(init.body);
+        }
+        request.end();
+    });
 }
 
 export class OjApiClient {
@@ -59,6 +107,17 @@ export class OjApiClient {
         this.baseUrl = trimTrailingSlash(options.baseUrl);
         this.token = options.token;
         this.requester = options.requester || defaultRequester;
+    }
+
+    public async login(input: IOjLoginRequest): Promise<IOjLoginResponse> {
+        return this.request<IOjLoginResponse>("/v1/auth/login", {
+            method: "POST",
+            body: JSON.stringify(input),
+        });
+    }
+
+    public async getCurrentUser(): Promise<IOjProfileResponse> {
+        return this.request<IOjProfileResponse>("/v1/auth/me");
     }
 
     public async listProblems(): Promise<IOjProblem[]> {
