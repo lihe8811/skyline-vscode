@@ -18,7 +18,7 @@ function buildDockerSandboxCommand({ workDir, timeMs, memoryMb }) {
       `${workDir}:/work:ro`,
       '-w',
       '/work',
-      'python:3.11',
+      'python:3.13',
       'timeout',
       `${seconds}s`,
       'python3',

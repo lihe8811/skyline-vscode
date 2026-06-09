@@ -1,15 +1,15 @@
-# Python 3.11 Custom OJ + Backup Migration Implementation Plan
+# Python 3.13 Custom OJ + Backup Migration Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Build a single backend service with an internal Python 3.11 judge and migrate Hydro backup data into standalone MongoDB so the VS Code extension can use one unified API.
+**Goal:** Build a single backend service with an internal Python 3.13 judge and migrate Hydro backup data into standalone MongoDB so the VS Code extension can use one unified API.
 
 **Architecture:** Use one backend for auth, RBAC, problems, homework, submissions, and leaderboard. Replace Judge0 with an internal judge worker that runs untrusted Python code in isolated containers. Keep migration in two layers: raw backup restore (`hydro_raw`) and transformed app read model (`oj_app`). The extension talks only to backend REST endpoints.
 
-**Tech Stack:** Node.js (TypeScript), MongoDB 7.x, Redis queue (or Mongo queue fallback), Docker sandbox runner (Python 3.11), VS Code extension.
+**Tech Stack:** Node.js (TypeScript), MongoDB 7.x, Redis queue (or Mongo queue fallback), Docker sandbox runner (Python 3.13), VS Code extension.
 
 ## Scope
-- Language support: Python 3.11 only.
+- Language support: Python 3.13 only.
 - Submission result: accepted/wrong answer/runtime error/time limit/memory limit/compile error (syntax error).
 - Homework leaderboard: score desc, time asc.
 - Assignment model: users + groups.
@@ -216,7 +216,7 @@ git add backend/src/modules/readmodel backend/src/modules/problems/problems.serv
 git commit -m "feat(api): read OJ data from oj_app"
 ```
 
-### Task 7: Build Python 3.11 judge worker (no Judge0)
+### Task 7: Build Python 3.13 judge worker (no Judge0)
 
 **Files:**
 - Create: `backend/src/modules/judge/queue.ts`
@@ -233,7 +233,7 @@ Run: `cd backend && npm test -- judge_worker.spec.ts`
 Expected: FAIL.
 
 **Step 3: Write minimal implementation**
-- Worker executes `python3.11` in Docker sandbox with strict limits and compares outputs.
+- Worker executes `python3.13` in Docker sandbox with strict limits and compares outputs.
 
 **Step 4: Run test to verify it passes**
 Run: `cd backend && npm test -- judge_worker.spec.ts`
@@ -242,7 +242,7 @@ Expected: PASS.
 **Step 5: Commit**
 ```bash
 git add backend/src/modules/judge backend/tests/judge_worker.spec.ts
-git commit -m "feat(judge): add python3.11 sandbox worker"
+git commit -m "feat(judge): add python3.13 sandbox worker"
 ```
 
 ### Task 8: Add submissions API orchestration in unified backend
@@ -334,6 +334,6 @@ git commit -m "docs(migration): add custom oj cutover and rollback guides"
 ## Success Criteria
 - Backup data migrated into `oj_app` with validated consistency.
 - Unified backend serves all extension-required flows.
-- Python 3.11 submissions judged correctly in isolated sandbox.
+- Python 3.13 submissions judged correctly in isolated sandbox.
 - No direct Judge0 dependency remains.
 - Cutover is repeatable and rollback is documented and fast.

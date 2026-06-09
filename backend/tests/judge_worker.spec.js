@@ -49,7 +49,7 @@ test('result mapper reports wrong answer when output differs', () => {
   assert.deepEqual(result, { caseNo: 1, status: 'wrong_answer', timeMs: 10, memoryKb: 512 });
 });
 
-test('docker sandbox command disables network and constrains Python 3.11 execution', () => {
+test('docker sandbox command disables network and constrains Python 3.13 execution', () => {
   const command = buildDockerSandboxCommand({
     workDir: '/tmp/oj/sub-1',
     timeMs: 1000,
@@ -59,5 +59,5 @@ test('docker sandbox command disables network and constrains Python 3.11 executi
   assert.equal(command.command, 'docker');
   assert.ok(command.args.includes('--network=none'));
   assert.ok(command.args.includes('--memory=64m'));
-  assert.ok(command.args.includes('python:3.11'));
+  assert.ok(command.args.includes('python:3.13'));
 });

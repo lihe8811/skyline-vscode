@@ -6,7 +6,7 @@
   <img src="resources/SkylineAI.png" alt="SkylineAI" width="168">
 </p>
 
-SkylineAI OJ is a refactor of the original VS Code LeetCode extension into a classroom-oriented online judge for Python students. The target product is a VS Code extension backed by a single self-hosted service that owns classroom data, homework assignment data, submissions, leaderboards, and Python 3.11 judging.
+SkylineAI OJ is a refactor of the original VS Code LeetCode extension into a classroom-oriented online judge for Python students. The target product is a VS Code extension backed by a single self-hosted service that owns classroom data, homework assignment data, submissions, leaderboards, and Python 3.13 judging.
 
 The extension code still contains legacy LeetCode command IDs and package metadata while the migration is in progress. New SkylineAI integration code is enabled through the `skylineOj.*` settings described below.
 
@@ -15,7 +15,7 @@ The extension code still contains legacy LeetCode command IDs and package metada
 - Students can sign in, browse assigned homework, open problems, write Python solutions, submit from VS Code, and review judging results.
 - Teachers can migrate existing OJ data, organize users into groups/classes, assign homework, and review per-homework leaderboards.
 - The backend exposes RESTful APIs for problems, homework, submissions, users, groups, and leaderboards.
-- The judging path is Python 3.11 only, which keeps the infrastructure simpler than a general multi-language OJ.
+- The judging path is Python 3.13 only, which keeps the infrastructure simpler than a general multi-language OJ.
 - Historical MongoDB backup data from the previous OJ can be transformed into the new application collections.
 
 ## Current Status
@@ -42,7 +42,7 @@ Not complete yet:
 VS Code extension
   -> SkylineAI OJ REST API
       -> MongoDB application database
-      -> Python 3.11 judge queue and worker
+      -> Python 3.13 judge queue and worker
       -> sandboxed solution execution
 ```
 
