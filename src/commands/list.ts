@@ -12,8 +12,8 @@ import { DialogType, promptForOpenOutputChannel } from "../utils/uiUtils";
 export async function listProblems(): Promise<IProblem[]> {
     try {
         if (isOjBackendEnabled()) {
-            const problems: IOjProblem[] = await createConfiguredOjApiClient().listProblems();
-            return problems.map((problem: IOjProblem) => ({
+            const ojProblems: IOjProblem[] = await createConfiguredOjApiClient().listProblems();
+            return ojProblems.map((problem: IOjProblem) => ({
                 id: String(problem.problemId),
                 isFavorite: false,
                 locked: false,

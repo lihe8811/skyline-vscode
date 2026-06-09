@@ -33,8 +33,8 @@ export async function submitSolution(uri?: vscode.Uri): Promise<void> {
 
             const sourceCode: string = await fse.readFile(filePath, "utf8");
             const created = await createConfiguredOjApiClient().createSubmission({ problemId, sourceCode });
-            const result = await createConfiguredOjApiClient().getSubmission(created.submissionId);
-            leetCodeSubmissionProvider.show(JSON.stringify(result, null, 2));
+            const submissionResult = await createConfiguredOjApiClient().getSubmission(created.submissionId);
+            leetCodeSubmissionProvider.show(JSON.stringify(submissionResult, null, 2));
             leetCodeTreeDataProvider.refresh();
             return;
         }
