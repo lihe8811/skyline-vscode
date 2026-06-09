@@ -1,12 +1,12 @@
 {
     "name": "vscode-leetcode",
-    "displayName": "LeetCode",
-    "description": "Solve LeetCode problems in VS Code",
+    "displayName": "Skyline AI",
+    "description": "Solve OJ and homework problems in VS Code with Skyline AI",
     "version": "0.18.5",
-    "author": "LeetCode",
-    "publisher": "LeetCode",
+    "author": "Skyline AI",
+    "publisher": "SkylineAI",
     "license": "MIT",
-    "icon": "resources/LeetCode.png",
+    "icon": "resources/SkylineAI.png",
     "engines": {
         "vscode": "^1.57.0"
     },
@@ -47,76 +47,76 @@
             {
                 "command": "leetcode.deleteCache",
                 "title": "Delete Cache",
-                "category": "LeetCode"
+                "category": "Skyline AI"
             },
             {
                 "command": "leetcode.toggleLeetCodeCn",
                 "title": "Switch Endpoint",
-                "category": "LeetCode",
+                "category": "Skyline AI",
                 "icon": "$(globe)"
             },
             {
                 "command": "leetcode.signin",
                 "title": "Sign In",
-                "category": "LeetCode",
+                "category": "Skyline AI",
                 "icon": "$(sign-in)"
             },
             {
                 "command": "leetcode.signout",
                 "title": "Sign Out",
-                "category": "LeetCode"
+                "category": "Skyline AI"
             },
             {
                 "command": "leetcode.manageSessions",
                 "title": "Manage Sessions",
-                "category": "LeetCode"
+                "category": "Skyline AI"
             },
             {
                 "command": "leetcode.refreshExplorer",
                 "title": "Refresh",
-                "category": "LeetCode",
+                "category": "Skyline AI",
                 "icon": "$(refresh)"
             },
             {
                 "command": "leetcode.pickOne",
                 "title": "Pick One",
-                "category": "LeetCode"
+                "category": "Skyline AI"
             },
             {
                 "command": "leetcode.showProblem",
                 "title": "Show Problem",
-                "category": "LeetCode"
+                "category": "Skyline AI"
             },
             {
                 "command": "leetcode.previewProblem",
                 "title": "Preview Problem",
-                "category": "LeetCode"
+                "category": "Skyline AI"
             },
             {
                 "command": "leetcode.searchProblem",
                 "title": "Search Problem",
-                "category": "LeetCode",
+                "category": "Skyline AI",
                 "icon": "$(search)"
             },
             {
                 "command": "leetcode.showSolution",
                 "title": "Show Top Voted Solution",
-                "category": "LeetCode"
+                "category": "Skyline AI"
             },
             {
                 "command": "leetcode.testSolution",
-                "title": "Test in LeetCode",
-                "category": "LeetCode"
+                "title": "Test in Skyline AI",
+                "category": "Skyline AI"
             },
             {
                 "command": "leetcode.submitSolution",
-                "title": "Submit to LeetCode",
-                "category": "LeetCode"
+                "title": "Submit to Skyline AI",
+                "category": "Skyline AI"
             },
             {
                 "command": "leetcode.addFavorite",
                 "title": "Add to Favorite List",
-                "category": "LeetCode",
+                "category": "Skyline AI",
                 "icon": {
                     "light": "resources/light/like.png",
                     "dark": "resources/dark/like.png"
@@ -125,7 +125,7 @@
             {
                 "command": "leetcode.removeFavorite",
                 "title": "Remove from Favorite List",
-                "category": "LeetCode",
+                "category": "Skyline AI",
                 "icon": {
                     "light": "resources/light/dislike.png",
                     "dark": "resources/dark/dislike.png"
@@ -134,12 +134,12 @@
             {
                 "command": "leetcode.switchDefaultLanguage",
                 "title": "Switch Default Language",
-                "category": "LeetCode"
+                "category": "Skyline AI"
             },
             {
                 "command": "leetcode.problems.sort",
                 "title": "Sort Problems",
-                "category": "LeetCode",
+                "category": "Skyline AI",
                 "icon": "$(sort-precedence)"
             }
         ],
@@ -147,8 +147,8 @@
             "activitybar": [
                 {
                     "id": "leetcode",
-                    "title": "LeetCode",
-                    "icon": "resources/LeetCode.svg"
+                    "title": "Skyline AI",
+                    "icon": "resources/SkylineAI.svg"
                 }
             ]
         },
@@ -286,12 +286,12 @@
         "submenus": [
             {
                 "id": "leetcode.editorAction",
-                "label": "LeetCode"
+                "label": "Skyline AI"
             }
         ],
         "configuration": [
             {
-                "title": "LeetCode",
+                "title": "Skyline AI",
                 "properties": {
                     "leetcode.hideSolved": {
                         "type": "boolean",
@@ -643,7 +643,7 @@
                         "type": "boolean",
                         "default": true,
                         "scope": "application",
-                        "description": "Show the LeetCode status bar or not."
+                        "description": "Show the Skyline AI status bar or not."
                     },
                     "leetcode.editor.shortcuts": {
                         "type": "array",
@@ -662,7 +662,7 @@
                                 "description"
                             ],
                             "enumDescriptions": [
-                                "Submit your answer to LeetCode.",
+                                "Submit your answer to Skyline AI.",
                                 "Test your answer with customized test cases.",
                                 "Star or unstar the current problem.",
                                 "Show the top voted solution for the current problem.",
@@ -704,7 +704,7 @@
                         "type": "boolean",
                         "default": true,
                         "scope": "application",
-                        "description": "Allow LeetCode to report anonymous usage data to improve the product."
+                        "description": "Allow Skyline AI to report anonymous usage data to improve the product."
                     }
                 }
             }

@@ -35,7 +35,7 @@ export async function selectWorkspaceFolder(): Promise<string> {
                 OpenOption.openInNewWindow,
                 OpenOption.addToWorkspace,
             ],
-            { placeHolder: "The LeetCode workspace folder is not opened in VS Code, would you like to open it?" },
+            { placeHolder: "The Skyline AI workspace folder is not opened in VS Code, would you like to open it?" },
         );
 
         // Todo: generate file first
@@ -101,7 +101,7 @@ async function determineLeetCodeFolder(): Promise<string> {
     );
     const choice: IQuickItemEx<string> | undefined = await vscode.window.showQuickPick(
         picks,
-        { placeHolder: "Select where you would like to save your LeetCode files" },
+        { placeHolder: "Select where you would like to save your Skyline AI files" },
     );
     if (!choice) {
         result = "";

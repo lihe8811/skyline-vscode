@@ -55,7 +55,7 @@ class LeetCodeExecutor implements Disposable {
             await this.executeCommandEx(this.nodeExecutable, ["-v"]);
         } catch (error) {
             const choice: MessageItem | undefined = await window.showErrorMessage(
-                "LeetCode extension needs Node.js installed in environment path",
+                "Skyline AI extension needs Node.js installed in environment path",
                 DialogOptions.open,
             );
             if (choice === DialogOptions.open) {
@@ -164,7 +164,7 @@ class LeetCodeExecutor implements Disposable {
 
     public async submitSolution(filePath: string): Promise<string> {
         try {
-            return await this.executeCommandWithProgressEx("Submitting to LeetCode...", this.nodeExecutable, [await this.getLeetCodeBinaryPath(), "submit", `"${filePath}"`]);
+            return await this.executeCommandWithProgressEx("Submitting to Skyline AI...", this.nodeExecutable, [await this.getLeetCodeBinaryPath(), "submit", `"${filePath}"`]);
         } catch (error) {
             if (error.result) {
                 return error.result;
@@ -175,9 +175,9 @@ class LeetCodeExecutor implements Disposable {
 
     public async testSolution(filePath: string, testString?: string): Promise<string> {
         if (testString) {
-            return await this.executeCommandWithProgressEx("Submitting to LeetCode...", this.nodeExecutable, [await this.getLeetCodeBinaryPath(), "test", `"${filePath}"`, "-t", `${testString}`]);
+            return await this.executeCommandWithProgressEx("Submitting to Skyline AI...", this.nodeExecutable, [await this.getLeetCodeBinaryPath(), "test", `"${filePath}"`, "-t", `${testString}`]);
         }
-        return await this.executeCommandWithProgressEx("Submitting to LeetCode...", this.nodeExecutable, [await this.getLeetCodeBinaryPath(), "test", `"${filePath}"`]);
+        return await this.executeCommandWithProgressEx("Submitting to Skyline AI...", this.nodeExecutable, [await this.getLeetCodeBinaryPath(), "test", `"${filePath}"`]);
     }
 
     public async switchEndpoint(endpoint: string): Promise<string> {

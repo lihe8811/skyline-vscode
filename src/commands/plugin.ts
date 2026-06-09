@@ -14,15 +14,15 @@ export async function switchEndpoint(): Promise<void> {
     const picks: Array<IQuickItemEx<string>> = [];
     picks.push(
         {
-            label: `${isCnEnabled ? "" : "$(check) "}LeetCode`,
+            label: `${isCnEnabled ? "" : "$(check) "}Skyline AI`,
             description: "leetcode.com",
-            detail: `Enable LeetCode US`,
+            detail: `Enable Skyline AI US`,
             value: Endpoint.LeetCode,
         },
         {
             label: `${isCnEnabled ? "$(check) " : ""}力扣`,
             description: "leetcode.cn",
-            detail: `启用中国版 LeetCode`,
+            detail: `启用中国版 Skyline AI`,
             value: Endpoint.LeetCodeCN,
         },
     );
