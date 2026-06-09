@@ -2,7 +2,15 @@
   "name": "skyline-oj-backend",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=16.20.1"
+  },
   "scripts": {
+    "start": "node src/server.js",
+    "set-password": "node scripts/set-user-password.js",
     "test": "node --test tests/*.spec.js"
+  },
+  "dependencies": {
+    "mongodb": "^6.21.0"
   }
 }

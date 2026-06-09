@@ -1,16 +1,15 @@
 const { parseBearerToken } = require('../../plugins/auth');
-const { decodeToken } = require('./auth.service');
 
-function getUserFromHeaders(headers) {
+function getUserFromHeaders(headers, authService) {
   const token = parseBearerToken(headers || {});
   if (!token) {
     return null;
   }
-  return decodeToken(token);
+  return authService.verifyAccessToken(token);
 }
 
-function requireRole(headers, roles) {
-  const user = getUserFromHeaders(headers);
+function requireRole(headers, roles, authService) {
+  const user = getUserFromHeaders(headers, authService);
   if (!user) {
     return { ok: false, statusCode: 401, error: 'Unauthorized' };
   }

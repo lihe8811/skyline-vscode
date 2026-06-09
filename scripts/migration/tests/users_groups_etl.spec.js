@@ -24,9 +24,11 @@ test('transformUsersAndGroups merges users with domain roles and expands group m
   assert.deepEqual(out.users.find((x) => x.userId === 2), {
     userId: 2,
     username: 'alice',
+    usernameLower: 'alice',
     email: 'a@example.com',
     role: 'teacher',
     displayName: 'Alice',
+    passwordHash: null,
   });
 
   assert.equal(out.groups.length, 1);

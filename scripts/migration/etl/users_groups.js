@@ -6,9 +6,11 @@ function transformUsersAndGroups(raw) {
     return {
       userId: u._id,
       username: u.uname,
+      usernameLower: String(u.uname || '').toLowerCase(),
       email: u.mail,
       role: domainUser.role || 'student',
       displayName: domainUser.displayName || u.uname,
+      passwordHash: null,
     };
   });
 
