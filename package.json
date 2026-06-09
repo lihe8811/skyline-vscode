@@ -738,5 +738,9 @@
         "require-from-string": "^2.0.2",
         "unescape-js": "^1.1.4",
         "vsc-leetcode-cli": "2.8.1"
+    },
+    "overrides": {
+        "request": "npm:postman-request@2.88.1-postman.48",
+        "uuid": "11.1.0"
     }
 }
