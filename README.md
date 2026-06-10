@@ -82,6 +82,74 @@ AUTH_TOKEN_SECRET='replace-with-a-long-random-secret' \
 npm start
 ```
 
+## Local MongoDB Deployment
+
+The repository includes a Docker Compose stack for local storage and backend
+authentication. It provides:
+
+- MongoDB 7 with root authentication.
+- A separate least-privilege `oj_app` application user.
+- A persistent `mongo_data` Docker volume.
+- MongoDB and backend health checks.
+- Host-only port bindings on `127.0.0.1`.
+- A non-root backend container.
+
+Create local secrets and start the stack:
+
+```bash
+cp .env.example .env
+```
+
+Replace every `change-me` value in `.env`, then run:
+
+```bash
+npm run stack:up
+docker compose ps
+curl http://127.0.0.1:3000/health
+```
+
+The extension can then use:
+
+```json
+{
+  "skylineOj.backendUrl": "http://127.0.0.1:3000"
+}
+```
+
+Restore the raw Hydro backup into `hydro_raw`:
+
+```bash
+docker compose exec mongodb sh -lc '
+  mongorestore \
+    --username "$MONGO_INITDB_ROOT_USERNAME" \
+    --password "$MONGO_INITDB_ROOT_PASSWORD" \
+    --authenticationDatabase admin \
+    --nsFrom "hydro.*" \
+    --nsTo "hydro_raw.*" \
+    /backup/dump/hydro
+'
+```
+
+Initialize a migrated user's password through the backend container:
+
+```bash
+docker compose exec \
+  -e USER_PASSWORD='temporary-password' \
+  backend npm run set-password -- student1
+```
+
+View logs or stop the services:
+
+```bash
+npm run stack:logs
+npm run stack:down
+```
+
+MongoDB initialization scripts run only when `mongo_data` is empty. Changing
+MongoDB usernames or passwords in `.env` does not modify an existing database.
+To recreate the database, `docker compose down -v` removes the persistent
+volume and all local data, so use it only when data loss is intentional.
+
 ## REST API Scope
 
 The backend design is centered around these resource groups:

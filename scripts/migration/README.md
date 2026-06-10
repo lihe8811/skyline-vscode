@@ -17,7 +17,22 @@ MONGO_URI='mongodb://localhost:27017' bash scripts/migration/01_restore_raw.sh
 ```
 
 Optional env vars:
-- `BACKUP_DUMP_DIR` (default: `/Users/lihe8811/Documents/Code/Edu/skyline-vscode/backup/dump/hydro`)
+- `BACKUP_DUMP_DIR` (default: `<repository>/backup/dump/hydro`)
+
+For the local Docker Compose stack, restore from the read-only `/backup`
+mount using the MongoDB root account:
+
+```bash
+docker compose exec mongodb sh -lc '
+  mongorestore \
+    --username "$MONGO_INITDB_ROOT_USERNAME" \
+    --password "$MONGO_INITDB_ROOT_PASSWORD" \
+    --authenticationDatabase admin \
+    --nsFrom "hydro.*" \
+    --nsTo "hydro_raw.*" \
+    /backup/dump/hydro
+'
+```
 
 ## Smoke check
 

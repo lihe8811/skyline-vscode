@@ -721,6 +721,9 @@
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "lint": "tslint --project tsconfig.json -e src/*.d.ts -t verbose",
+        "stack:up": "docker compose up -d --build",
+        "stack:down": "docker compose down",
+        "stack:logs": "docker compose logs -f",
         "build": "vsce package",
         "vs-publish": "vsce publish"
     },

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BACKUP_DUMP_DIR="${BACKUP_DUMP_DIR:-/Users/lihe8811/Documents/Code/Edu/skyline-vscode/backup/dump/hydro}"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+BACKUP_DUMP_DIR="${BACKUP_DUMP_DIR:-$REPO_ROOT/backup/dump/hydro}"
 MONGO_URI="${MONGO_URI:-}"
 
 show_help() {
