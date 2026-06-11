@@ -213,13 +213,21 @@ class LeetCodeManager extends EventEmitter {
 
     public async signOut(): Promise<void> {
         if (isOjBackendEnabled()) {
-            if (this.ojSession) {
-                await this.ojSession.clear();
+            try {
+                if (this.ojSession?.getToken()) {
+                    await createConfiguredOjApiClient().logout();
+                }
+            } catch (error) {
+                leetCodeChannel.appendLine(`Failed to revoke SkylineAI session: ${error.toString()}`);
+            } finally {
+                if (this.ojSession) {
+                    await this.ojSession.clear();
+                }
+                setOjSessionToken(undefined);
+                this.currentUser = undefined;
+                this.userStatus = UserStatus.SignedOut;
+                this.emit("statusChanged");
             }
-            setOjSessionToken(undefined);
-            this.currentUser = undefined;
-            this.userStatus = UserStatus.SignedOut;
-            this.emit("statusChanged");
             vscode.window.showInformationMessage("Successfully signed out.");
             return;
         }

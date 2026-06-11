@@ -76,6 +76,7 @@ export interface IProblem {
     locked: boolean;
     state: ProblemState;
     id: string;
+    homeworkId?: string;
     name: string;
     difficulty: string;
     passRate: string;
@@ -96,6 +97,7 @@ export const defaultProblem: IProblem = {
 };
 
 export enum Category {
+    Homework = "Homework",
     All = "All",
     Difficulty = "Difficulty",
     Tag = "Tag",

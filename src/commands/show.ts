@@ -2,11 +2,13 @@
 // Licensed under the MIT license.
 
 import * as _ from "lodash";
+import * as fse from "fs-extra";
 import * as path from "path";
 import * as unescapeJS from "unescape-js";
 import * as vscode from "vscode";
 import { createConfiguredOjApiClient, isOjBackendEnabled } from "../api/ojApiConfig";
 import { IOjProblem } from "../api/ojApiClient";
+import { renderOjPythonFile } from "../api/ojProblemFile";
 import { explorerNodeManager } from "../explorer/explorerNodeManager";
 import { LeetCodeNode } from "../explorer/LeetCodeNode";
 import { leetCodeChannel } from "../leetCodeChannel";
@@ -165,6 +167,41 @@ async function fetchProblemLanguage(): Promise<string | undefined> {
 
 async function showProblemInternal(node: IProblem): Promise<void> {
     try {
+        if (isOjBackendEnabled()) {
+            const problem: IOjProblem = await createConfiguredOjApiClient().getProblem(node.id);
+            const ojWorkspaceFolder: string = await selectWorkspaceFolder();
+            if (!ojWorkspaceFolder) {
+                return;
+            }
+            const ojConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("leetcode");
+            const ojFileFolder: string = ojConfig
+                .get<string>("filePath.python3.folder", ojConfig.get<string>("filePath.default.folder", ""))
+                .trim();
+            const ojFileName: string = ojConfig
+                .get<string>("filePath.python3.filename", genFileName(node, "python3"))
+                .trim();
+            const homeworkPrefix: string = node.homeworkId
+                ? `${node.homeworkId.replace(/[^A-Za-z0-9._-]/g, "-")}.`
+                : "";
+            const ojFinalPath: string = path.join(
+                ojWorkspaceFolder,
+                ojFileFolder,
+                `${homeworkPrefix}${ojFileName}`,
+            );
+            if (!await fse.pathExists(ojFinalPath)) {
+                await fse.ensureDir(path.dirname(ojFinalPath));
+                await fse.writeFile(ojFinalPath, renderOjPythonFile(problem, node.homeworkId), "utf8");
+            }
+            await vscode.window.showTextDocument(vscode.Uri.file(ojFinalPath), {
+                preview: false,
+                viewColumn: vscode.ViewColumn.One,
+            });
+            if (settingUtils.getDescriptionConfiguration().showInWebview) {
+                await showDescriptionView(node);
+            }
+            return;
+        }
+
         const language: string | undefined = await fetchProblemLanguage();
         if (!language) {
             return;

@@ -1,0 +1,129 @@
+openapi: 3.1.0
+info:
+  title: SkylineAI Homework API
+  version: 1.0.0
+servers:
+  - url: https://homework.skyline-ai.space
+security:
+  - bearerAuth: []
+paths:
+  /api/skyline/v1/auth/login:
+    post:
+      operationId: login
+      security: []
+      responses:
+        "200": { description: Authenticated }
+  /api/skyline/v1/auth/logout:
+    post:
+      operationId: logout
+      responses:
+        "204": { description: Logged out }
+  /api/skyline/v1/auth/me:
+    get:
+      operationId: getCurrentUser
+      responses:
+        "200": { description: Current user }
+  /api/skyline/v1/problems:
+    get:
+      operationId: listProblems
+      responses:
+        "200": { description: Visible problems }
+  /api/skyline/v1/problems/{id}:
+    get:
+      operationId: getProblem
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200": { description: Problem details }
+  /api/skyline/v1/homeworks:
+    get:
+      operationId: listHomeworks
+      responses:
+        "200": { description: Assigned homework }
+  /api/skyline/v1/homeworks/{id}:
+    get:
+      operationId: getHomework
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200": { description: Homework details }
+  /api/skyline/v1/homeworks/{id}/leaderboard:
+    get:
+      operationId: getHomeworkLeaderboard
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200": { description: Homework leaderboard }
+  /api/skyline/v1/submissions:
+    post:
+      operationId: createSubmission
+      responses:
+        "202": { description: Submission queued }
+  /api/skyline/v1/submissions/{id}:
+    get:
+      operationId: getSubmission
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200": { description: Submission status }
+  /api/skyline/v1/admin/plan:
+    post:
+      operationId: planSynchronization
+      responses:
+        "200": { description: Synchronization plan }
+  /api/skyline/v1/admin/sync:
+    post:
+      operationId: applySynchronization
+      responses:
+        "200": { description: Synchronization result }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  parameters:
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string }
+  schemas:
+    User:
+      type: object
+      required: [id, username, displayName, role, groups]
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        displayName: { type: string }
+        role: { type: string, enum: [student, administrator] }
+        groups: { type: array, items: { type: string } }
+    Problem:
+      type: object
+      required: [id, numericId, title, statement, language]
+      properties:
+        id: { type: string }
+        numericId: { type: integer }
+        title: { type: string }
+        statement: { type: string }
+        language: { type: string, const: py3 }
+    HomeworkProgress:
+      type: object
+      required: [score, solved, total]
+      properties:
+        score: { type: number }
+        solved: { type: integer }
+        total: { type: integer }
+    Homework:
+      type: object
+      required: [id, title, progress]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        progress: { $ref: "#/components/schemas/HomeworkProgress" }
+    Submission:
+      type: object
+      required: [id, problemId, status]
+      properties:
+        id: { type: string }
+        problemId: { type: integer }
+        status: { type: string }

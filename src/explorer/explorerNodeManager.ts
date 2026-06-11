@@ -3,6 +3,8 @@
 
 import * as _ from "lodash";
 import { Disposable } from "vscode";
+import { createConfiguredOjApiClient, isOjBackendEnabled } from "../api/ojApiConfig";
+import { buildHomeworkTree, IOjHomeworkTreeNode } from "../api/ojHomeworkTree";
 import * as list from "../commands/list";
 import { getSortingStrategy } from "../commands/plugin";
 import { Category, defaultProblem, ProblemState, SortingStrategy } from "../shared";
@@ -13,6 +15,8 @@ class ExplorerNodeManager implements Disposable {
     private explorerNodeMap: Map<string, LeetCodeNode> = new Map<string, LeetCodeNode>();
     private companySet: Set<string> = new Set<string>();
     private tagSet: Set<string> = new Set<string>();
+    private homeworkMap: Map<string, { node: LeetCodeNode; problems: LeetCodeNode[] }> =
+        new Map<string, { node: LeetCodeNode; problems: LeetCodeNode[] }>();
 
     public async refreshCache(): Promise<void> {
         this.dispose();
@@ -29,10 +33,30 @@ class ExplorerNodeManager implements Disposable {
                 this.tagSet.add(tag);
             }
         }
+        if (isOjBackendEnabled()) {
+            const api = createConfiguredOjApiClient();
+            const summaries = await api.listHomeworks();
+            const details = await Promise.all(summaries.map((homework) => api.getHomework(homework.id)));
+            for (const homework of buildHomeworkTree(details)) {
+                const problems: LeetCodeNode[] = homework.problems.map((problem) => {
+                    return new LeetCodeNode(Object.assign({}, defaultProblem, {
+                        id: problem.id,
+                        homeworkId: homework.homeworkId,
+                        name: problem.title,
+                        difficulty: String(problem.difficulty || ""),
+                        tags: problem.tags || [],
+                    }));
+                });
+                this.homeworkMap.set(homework.id, {
+                    node: this.toHomeworkNode(homework),
+                    problems,
+                });
+            }
+        }
     }
 
     public getRootNodes(): LeetCodeNode[] {
-        return [
+        const roots: LeetCodeNode[] = [
             new LeetCodeNode(Object.assign({}, defaultProblem, {
                 id: Category.All,
                 name: Category.All,
@@ -54,6 +78,21 @@ class ExplorerNodeManager implements Disposable {
                 name: Category.Favorite,
             }), false),
         ];
+        if (isOjBackendEnabled()) {
+            roots.unshift(new LeetCodeNode(Object.assign({}, defaultProblem, {
+                id: Category.Homework,
+                name: "Homework",
+            }), false));
+        }
+        return roots;
+    }
+
+    public getHomeworkNodes(): LeetCodeNode[] {
+        return Array.from(this.homeworkMap.values()).map((entry) => entry.node);
+    }
+
+    public getHomeworkProblemNodes(id: string): LeetCodeNode[] {
+        return this.homeworkMap.get(id)?.problems || [];
     }
 
     public getAllNodes(): LeetCodeNode[] {
@@ -152,6 +191,14 @@ class ExplorerNodeManager implements Disposable {
         this.explorerNodeMap.clear();
         this.companySet.clear();
         this.tagSet.clear();
+        this.homeworkMap.clear();
+    }
+
+    private toHomeworkNode(homework: IOjHomeworkTreeNode): LeetCodeNode {
+        return new LeetCodeNode(Object.assign({}, defaultProblem, {
+            id: homework.id,
+            name: homework.title,
+        }), false);
     }
 
     private sortSubCategoryNodes(subCategoryNodes: LeetCodeNode[], category: Category): void {

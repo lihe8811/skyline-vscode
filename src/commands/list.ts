@@ -14,7 +14,7 @@ export async function listProblems(): Promise<IProblem[]> {
         if (isOjBackendEnabled()) {
             const ojProblems: IOjProblem[] = await createConfiguredOjApiClient().listProblems();
             return ojProblems.map((problem: IOjProblem) => ({
-                id: String(problem.problemId),
+                id: problem.id,
                 isFavorite: false,
                 locked: false,
                 state: ProblemState.Unknown,

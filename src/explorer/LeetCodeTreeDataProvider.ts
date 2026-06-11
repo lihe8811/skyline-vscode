@@ -43,6 +43,8 @@ export class LeetCodeTreeDataProvider implements vscode.TreeDataProvider<LeetCod
         let contextValue: string;
         if (element.isProblem) {
             contextValue = element.isFavorite ? "problem-favorite" : "problem";
+        } else if (element.id.startsWith(`${Category.Homework}.`)) {
+            contextValue = "homework";
         } else {
             contextValue = element.id.toLowerCase();
         }
@@ -77,6 +79,8 @@ export class LeetCodeTreeDataProvider implements vscode.TreeDataProvider<LeetCod
             switch (element.id) {
                 case Category.All:
                     return explorerNodeManager.getAllNodes();
+                case Category.Homework:
+                    return explorerNodeManager.getHomeworkNodes();
                 case Category.Favorite:
                     return explorerNodeManager.getFavoriteNodes();
                 case Category.Difficulty:
@@ -88,6 +92,9 @@ export class LeetCodeTreeDataProvider implements vscode.TreeDataProvider<LeetCod
                 default:
                     if (element.isProblem) {
                         return [];
+                    }
+                    if (element.id.startsWith(`${Category.Homework}.`)) {
+                        return explorerNodeManager.getHomeworkProblemNodes(element.id);
                     }
                     return explorerNodeManager.getChildrenNodesById(element.id);
             }
