@@ -23,6 +23,10 @@ export class LeetCodeNode {
         return this.data.id;
     }
 
+    public get homeworkId(): string | undefined {
+        return this.data.homeworkId;
+    }
+
     public get passRate(): string {
         return this.data.passRate;
     }

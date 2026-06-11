@@ -4,6 +4,7 @@
 import * as fse from "fs-extra";
 import * as vscode from "vscode";
 import { createConfiguredOjApiClient, isOjBackendEnabled } from "../api/ojApiConfig";
+import { parseOjFileMetadata } from "../api/ojProblemFile";
 import { leetCodeTreeDataProvider } from "../explorer/LeetCodeTreeDataProvider";
 import { leetCodeExecutor } from "../leetCodeExecutor";
 import { leetCodeManager } from "../leetCodeManager";
@@ -25,15 +26,20 @@ export async function submitSolution(uri?: vscode.Uri): Promise<void> {
 
     try {
         if (isOjBackendEnabled()) {
-            const problemId: number = Number(await getNodeIdFromFile(filePath));
-            if (!Number.isFinite(problemId)) {
-                vscode.window.showErrorMessage(`Failed to resolve numeric problem id from file: ${filePath}.`);
+            const sourceCode: string = await fse.readFile(filePath, "utf8");
+            const metadata = parseOjFileMetadata(sourceCode);
+            const problemId: string = metadata?.problemId || await getNodeIdFromFile(filePath);
+            if (!problemId) {
+                vscode.window.showErrorMessage(`Failed to resolve problem id from file: ${filePath}.`);
                 return;
             }
 
-            const sourceCode: string = await fse.readFile(filePath, "utf8");
-            const created = await createConfiguredOjApiClient().createSubmission({ problemId, sourceCode });
-            const submissionResult = await createConfiguredOjApiClient().getSubmission(created.submissionId);
+            const created = await createConfiguredOjApiClient().createSubmission({
+                problemId,
+                homeworkId: metadata?.homeworkId,
+                sourceCode,
+            });
+            const submissionResult = await createConfiguredOjApiClient().waitForSubmission(created.id);
             leetCodeSubmissionProvider.show(JSON.stringify(submissionResult, null, 2));
             leetCodeTreeDataProvider.refresh();
             return;
